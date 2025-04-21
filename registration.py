@@ -385,37 +385,20 @@ class Graph:
         post: returns a 2D list of strings, where each inner list represents a semester
         """
         num_vertices = len(self.vertices)
-        in_degree = [0] * num_vertices
-        for i in range(num_vertices):
-            for j in range(num_vertices):
-                if self.adjacency_matrix[i][j] == 1:
-                    in_degree[j] += 1
-
-        courses = []
-        taken = set()
+        in_degree = [sum(row[i] for row in self.adjacency_matrix) for i in range(num_vertices)]
+        courses, taken = [], set()
         while len(taken) < num_vertices:
             available = [i for i in range(num_vertices) if in_degree[i] == 0 and i not in taken]
-            sorted_available = []
-            while available:
-                best_index = 0
-                for i in range(1, len(available)):
-                    index1 = available[best_index]
-                    index2 = available[i]
-
-                    depth1 = self.vertices[index1].depth
-                    depth2 = self.vertices[index2].depth
-
-                    label1 = self.vertices[index1].label
-                    label2 = self.vertices[index2].label
-                    if depth2 > depth1:
-                        best_index = i
-                    elif depth2 == depth1 and label2 < label1:
-                        best_index = i
-                sorted_available.append(available.pop(best_index))
+            for idx, _ in enumerate(available):
+                best = idx
+                for j in range(idx + 1, len(available)):
+                    a, b = self.vertices[available[best]], self.vertices[available[j]]
+                    if b.depth > a.depth or (b.depth == a.depth and b.label < a.label):
+                        best = j
+                available[idx], available[best] = available[best], available[idx]
 
             semester = []
-            for i in range(min(4, len(sorted_available))):
-                index = sorted_available[i]
+            for index in available[:4]:
                 semester.append(self.vertices[index].label)
                 taken.add(index)
                 for neighbor in self.get_adjacent_vertices(index):
