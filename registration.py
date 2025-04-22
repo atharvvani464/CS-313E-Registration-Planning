@@ -340,9 +340,7 @@ class Graph:
             max_depth = 0
             for neighbor in self.get_adjacent_vertices(key):
                 depth = 1 + dfs_depth(neighbor)
-                if depth > max_depth:
-                    max_depth = depth
-
+                max_depth = max(max_depth, depth)
             self.vertices[key].depth = max_depth
             return max_depth
         for i in range(len(self.vertices)):
